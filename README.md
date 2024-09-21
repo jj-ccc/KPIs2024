@@ -83,7 +83,7 @@ docker run --rm -v $data_dir:/input_slide/:ro  -v $output_dir:/output_slide/ --g
   | F1     | 91.33          |
 
 
-##Acknowledgement
+## Acknowledgement
 
 Thank you for some insights from [HoloHisto](https://arxiv.org/abs/2407.03307)
 ```
