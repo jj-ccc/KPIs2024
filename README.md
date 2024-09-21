@@ -19,7 +19,7 @@ Our development environments:
 | GPU(number and type)    | 4 NVIDIA RTX A6000 48G                    |
 | CUDA version            | 12.1                                      |
 | Programming language    | Python 3.11.0                             |
-| Deep learning framework | Pytorch (Torch 2.1.2, torchvision 0.16.2) |
+| Deep learning framework | Pytorch (torch 2.1.2, torchvision 0.16.2) |
 | Specific dependencies   | monai 1.3.0                               |
 
 To install requirements:
