@@ -83,6 +83,17 @@ docker run --rm -v $data_dir:/input_slide/:ro  -v $output_dir:/output_slide/ --g
   | F1     | 91.33          |
 
 
-## Citation
+##Acknowledgement
 
-Thank you for the insights from [HoloHisto](https://arxiv.org/abs/2407.03307)
+Thank you for some insights from [HoloHisto](https://arxiv.org/abs/2407.03307)
+```
+@misc{tang2024holohistoendtoendgigapixelwsi,
+      title={HoloHisto: End-to-end Gigapixel WSI Segmentation with 4K Resolution Sequential Tokenization}, 
+      author={Yucheng Tang and Yufan He and Vishwesh Nath and Pengfeig Guo and Ruining Deng and Tianyuan Yao and Quan Liu and Can Cui and Mengmeng Yin and Ziyue Xu and Holger Roth and Daguang Xu and Haichun Yang and Yuankai Huo},
+      year={2024},
+      eprint={2407.03307},
+      archivePrefix={arXiv},
+      primaryClass={eess.IV},
+      url={https://arxiv.org/abs/2407.03307}, 
+}
+```
