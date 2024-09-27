@@ -2,7 +2,7 @@
 
 
 
-Solution of Team saltfish for KPIs2024: WSI-level Diseased Glomeruli Detection 
+Solution of Team saltfish for KPIs2024: WSI-level Diseased Glomeruli  Instance Detection 
 
 You can reproduce our method as follows step by step:
 
@@ -38,15 +38,24 @@ pip install -r requirements.txt
 To train the models, run this command :
 
   ```
-  python train_final.py --data_path <data_patch> --work_dir <work_dir>  --model_name <model_name> --val_path <val_patch>
+  torchrun --nproc_per_node=<nproc_per_node> --data_path <data_patch> --work_dir <work_dir>  --model_name <model_name> --val_path <val_patch> train_final.py
   ```
-Then we get models saved in ./<work_dir> /<model_name> 
-and logs saved in ./<work_dir> /runs
+You can also train with four cards using the default parameters£º
+  ```
+torchrun --nproc_per_node=4   train_final.py
+  ```
 
-## Trained Models
+Then we get models saved in 
+```
+./<work_dir> /<model_name>/ 
+```
+and logs saved in 
+```
+./<work_dir> /runs/
+```
+## Pre-trained Models
 The publicly available pre-trained vit models can be download here:[Google Drive](https://drive.google.com/drive/folders/1UVwNHj9Y47j516SEUdtn1nlDau1kksDj)
-
-
+Place the downloaded SAM's pre-trained ecoder weights in folder : ```model```
 ## Testing
 You can download pre-trained weights here:[Google Drive](https://drive.google.com/drive/folders/1Zge3lp84ucAVZTOJVRGRY95jtPi_CQ5G)
 
@@ -58,7 +67,9 @@ To test the models, run this command :
   ```
 
 Docker  container link:[Docker Hub](https://hub.docker.com/repository/docker/cjjnihao/sf_wsl/general)
-Docker reference [kips2024 official code](https://github.com/hrlblab/KPIs2024/tree/main)
+Docker reference: [kips2024 official code](https://github.com/hrlblab/KPIs2024)
+
+docker run command:
 
 ```
 docker pull cjjnihao/sf_wsl:slide3 #v3
@@ -85,7 +96,7 @@ docker run --rm -v $data_dir:/input_slide/:ro  -v $output_dir:/output_slide/ --g
 
 ## Acknowledgement
 
-Thank you for some insights from [HoloHisto](https://arxiv.org/abs/2407.03307)
+Many thanks to the organizing committee of this challenge, reference to [HoloHisto](https://arxiv.org/abs/2407.03307)
 ```
 @misc{tang2024holohistoendtoendgigapixelwsi,
       title={HoloHisto: End-to-end Gigapixel WSI Segmentation with 4K Resolution Sequential Tokenization}, 

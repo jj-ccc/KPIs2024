@@ -193,8 +193,8 @@ def main(tempdir, model_dir1,model_dir2, output_dir):
             dice_metric(y_pred=val_outputs, y=val_labels)
             # for val_output in val_outputs:
             #     saver(val_output)
-            #cnt = save_validate(val_images, val_labels, val_outputs, output_dir, images, cnt)
-            cnt+=1
+            cnt = save_validate(val_images, val_labels, val_outputs, output_dir, images, cnt)
+            #cnt+=1
         # aggregate the final mean dice result
         print("evaluation metric:", dice_metric.aggregate().item())
         #print(model_dir) #delete

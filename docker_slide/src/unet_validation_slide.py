@@ -32,7 +32,6 @@ import tifffile
 import scipy.ndimage as ndi
 import imageio
 import numpy as np
-import pandas as pd
 from dataset_inf import MyDataset
 from net_sam_infer import  CellViTSAM
 import torch.nn.functional as F
@@ -226,7 +225,7 @@ def main(datadir, model_dir1,model_dir2,model_dir3,model_dir4,output_dir):
     val_loader = DataLoader(val_ds, batch_size=1, num_workers=0, shuffle=False, pin_memory=torch.cuda.is_available())
     dice_metric = DiceMetric(include_background=False, reduction="mean", get_not_nans=False)
     post_trans = Compose([Activations(sigmoid=True), AsDiscrete(threshold=0.5)])
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
     
     
     model1 = CellViTSAM(input_classes=3,oputput_num_classes=1,vit_structure='SAM-H',freeze_encoder=True)
@@ -359,13 +358,14 @@ def main(datadir, model_dir1,model_dir2,model_dir3,model_dir4,output_dir):
             
             
             ret, binary = cv2.threshold(wsi_prediction_sm, 0, 255, cv2.THRESH_BINARY_INV)
-            _,preds_contours, _ = cv2.findContours(binary.astype(np.uint8),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-
+            _,preds_contours, _ = cv2.findContours(binary.astype(np.uint8),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)# opencv 3.x
+            #preds_contours, _ = cv2.findContours(binary.astype(np.uint8),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)# opencv 4.x
             wsi_mask = np.squeeze(wsi_mask, axis=0)
             wsi_mask = np.squeeze(wsi_mask, axis=0)
             
             ret, binary = cv2.threshold(wsi_mask, 0, 255, cv2.THRESH_BINARY_INV)
-            _,masks_contours, _ = cv2.findContours(binary.astype(np.uint8), cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+            _,masks_contours, _ = cv2.findContours(binary.astype(np.uint8), cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)# opencv 3.x
+            #masks_contours, _ = cv2.findContours(binary.astype(np.uint8), cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)# opencv 4.x
             precision_scores, recall_scores, f1_scores_50 = calculate_metrics_ap50(preds_contours[1:], masks_contours[1:],(now_img_shape[-2], now_img_shape[-1]))
             ap50 = precision_scores
 
@@ -410,9 +410,9 @@ if __name__ == "__main__":
     
     ##############################
 
-    data_dir = '/input_slide/'
-    output_dir = '/output_slide/'
-    wd = '/myhome/wd'
+    # data_dir = '/input_slide/'
+    # output_dir = '/output_slide/'
+    # wd = '/myhome/wd'
     
     model_dir1 = "./src/model/model1.pth"
     model_dir2 = "./src/model/model2.pth"
@@ -421,13 +421,15 @@ if __name__ == "__main__":
     
     
     ###########################cs
-    # os.chdir("/ssd/cyj/code/")
-    # data_dir = '/ssd/cyj/KPIs24datanew/task2/val/'
-    # output_dir = '/ssd/cyj/code/task2_6/'
+    #os.chdir("/ssd/cyj/code/")
+    data_dir = '/ssd/cyj/KPIs24datanew/task2/val/'
+    output_dir = '/ssd/cyj/KPIs2024/task2_val/'
     # model_dir1 = "/ssd/cyj/code/work_dir26_crop_huge1/sam_crop_huge/best_metric_model.pth"
     # model_dir2 = "/ssd/cyj/code/work_dir26_crop_huge2/sam_crop_huge/best_metric_model.pth"
     # model_dir3 = "/ssd/cyj/code/work_dir26_crop_huge3/sam_crop_huge/best_metric_model.pth"
     # model_dir4 = "/ssd/cyj/code/work_dir26_crop_huge4/sam_crop_huge/best_metric_model.pth"
+    
+    
 ####################################
 
 

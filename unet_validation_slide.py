@@ -33,7 +33,6 @@ import tifffile
 import scipy.ndimage as ndi
 import imageio
 import numpy as np
-import pandas as pd
 from dataset_inf import MyDataset
 from net_sam_infer import  CellViTSAM
 import torch.nn.functional as F
@@ -227,7 +226,7 @@ def main(datadir, model_dir1,model_dir2,model_dir3,model_dir4,output_dir):
     val_loader = DataLoader(val_ds, batch_size=1, num_workers=0, shuffle=False, pin_memory=torch.cuda.is_available())
     dice_metric = DiceMetric(include_background=False, reduction="mean", get_not_nans=False)
     post_trans = Compose([Activations(sigmoid=True), AsDiscrete(threshold=0.5)])
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
     
     
     model1 = CellViTSAM(input_classes=3,oputput_num_classes=1,vit_structure='SAM-H',freeze_encoder=True)
@@ -295,11 +294,7 @@ def main(datadir, model_dir1,model_dir2,model_dir3,model_dir4,output_dir):
             
             #val_outputs = sliding_window_inference(val_images, roi_size, sw_batch_size, model)
             
-        
-            
-            
-            
-            
+    
             
             
             val_outputs = [post_trans(i) for i in decollate_batch(val_outputs)]
@@ -364,13 +359,14 @@ def main(datadir, model_dir1,model_dir2,model_dir3,model_dir4,output_dir):
             
             
             ret, binary = cv2.threshold(wsi_prediction_sm, 0, 255, cv2.THRESH_BINARY_INV)
-            preds_contours, _ = cv2.findContours(binary.astype(np.uint8),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-
+            #preds_contours, _ = cv2.findContours(binary.astype(np.uint8),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)#opencv 4.x
+            _ , preds_contours, _ = cv2.findContours(binary.astype(np.uint8),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)#opencv 3.x
             wsi_mask = np.squeeze(wsi_mask, axis=0)
             wsi_mask = np.squeeze(wsi_mask, axis=0)
             
             ret, binary = cv2.threshold(wsi_mask, 0, 255, cv2.THRESH_BINARY_INV)
-            masks_contours, _ = cv2.findContours(binary.astype(np.uint8), cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+            #masks_contours, _ = cv2.findContours(binary.astype(np.uint8), cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE) #opencv 4.x
+            _ , masks_contours, _ = cv2.findContours(binary.astype(np.uint8), cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE) #opencv 3.x
             precision_scores, recall_scores, f1_scores_50 = calculate_metrics_ap50(preds_contours[1:], masks_contours[1:],(now_img_shape[-2], now_img_shape[-1]))
             ap50 = precision_scores
 
@@ -417,7 +413,7 @@ if __name__ == "__main__":
     
     parser.add_argument(
         "--output_dir",
-        default="/ssd/cyj/code/window/",
+        default="/ssd/cyj/KPIs2024/task2_valoutput/",
         type=str,
         help="Output path",
     )

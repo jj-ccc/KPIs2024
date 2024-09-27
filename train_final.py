@@ -3,6 +3,7 @@
 """
 Adapted form MONAI Tutorial: https://github.com/Project-MONAI/tutorials/tree/main/2d_segmentation/torch
 """
+
 import pdb
 import warnings
 import time
@@ -22,6 +23,7 @@ from pickle import FALSE
 import sys
 import argparse
 import os
+#os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3,5,6,7"#A6k
 import cv2
 join = os.path.join
 import numpy as np
@@ -65,12 +67,13 @@ from utils import Dice_Loss
 from utils.miou import compute_miou, fast_hist, per_class_iu, compute_mIoU
 # from torch.autograd import Variable
 
-from net_sam import SAM_Model , CellViTSAM
+from net_sam import  CellViTSAM 
 os.environ['MASTER_ADDR'] = 'localhost' 
 # os.environ['MASTER_PORT'] = '30020'
 os.environ['TORCH_DISTRIBUTED_DEBUG'] = 'DETAIL'
-os.environ["CUDA_VISIBLE_DEVICES"] = "3,4,5,6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4,5,6,7"
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+
 
 print("Successfully imported all requirements!")
 from pathlib import Path
@@ -116,7 +119,7 @@ def main():
     parser.add_argument("--max_epochs", default=100, type=int)
     parser.add_argument("--val_interval", default=2, type=int)
     parser.add_argument("--epoch_tolerance", default=100, type=int)
-    parser.add_argument("--initial_lr", type=float, default=2e-4, help="learning rate") #ecoder -4
+    parser.add_argument("--initial_lr", type=float, default=6e-4, help="learning rate") #ecoder -4
     parser.add_argument("--warmup", type=bool, default=False, help="learning rate")
     parser.add_argument("--warmup_period", type=int, default=50, help="learning rate")
     parser.add_argument('--lr_exp', type=float, default=0.85, help='The learning rate decay expotential')
@@ -125,6 +128,7 @@ def main():
     ### gpu id
     local_rank = int(os.environ["LOCAL_RANK"])
     dist.init_process_group("nccl", init_method='env://', rank=local_rank, world_size=4)
+    
     monai.config.print_config()
     np.random.seed(args.seed)
 
@@ -269,7 +273,7 @@ def main():
         train_ds,
         batch_size=args.batch_size,
         sampler= train_sampler,
-        shuffle=True,
+        #shuffle=False,
         num_workers=args.num_workers,
         pin_memory=torch.cuda.is_available(),
         drop_last=True
@@ -287,9 +291,9 @@ def main():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = CellViTSAM(model_path='./model/sam_vit_h.pth',input_classes=3,continue_train=False,oputput_num_classes=args.num_class,vit_structure='SAM-H',freeze_encoder=True)
+    model = CellViTSAM(model_path='/ssd/cyj/OCELOT2023/code/model/sam_vit_h.pth',input_classes=3,continue_train=False,oputput_num_classes=args.num_class,vit_structure='SAM-H',freeze_encoder=True)
     model = nn.SyncBatchNorm.convert_sync_batchnorm(model).to(device) 
-    model = DDP(model, device_ids=[local_rank], output_device=local_rank,find_unused_parameters=False)
+    model = DDP(model, device_ids=[local_rank], output_device=local_rank,find_unused_parameters=True)
     
     # loss_function = monai.losses.DiceFocalLoss(softmax = False)
     loss_function_bce = nn.BCEWithLogitsLoss()
@@ -480,7 +484,9 @@ def main():
                         pbar.close()
                         
             if epoch == args.max_epochs:
+        
                 torch.save(checkpoint, join(model_path, "final_model.pth"))
+        dist.destroy_process_group()
     if dist.get_rank() == 0:    
         writer.close()
 
